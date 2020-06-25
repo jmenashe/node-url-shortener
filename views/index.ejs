@@ -12,13 +12,47 @@
     <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
+      <![endif]-->
+    <style>
+      .shadowbox {
+        background-color: rgb(0, 0, 0);
+        /* Fallback color */
+        background-color: rgba(0, 0, 0, 0.2);
+        /* Black w/opacity/see-through */
+        border: 3px solid;
+      }
+      .rainbow {
+        text-align: center;
+        text-decoration: underline;
+        font-size: 150px;
+        font-weight: bold;
+        font-family: monospace;
+        letter-spacing: 5px;
+      }
+      .rainbow_text_animated {
+        background: linear-gradient(to right, #6666ff, #0099ff , #00ff00, #ff3399, #6666ff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        animation: rainbow_animation 6s ease-in-out infinite;
+        background-size: 400% 100%;
+      }
+
+      @keyframes rainbow_animation {
+        0%,100% {
+          background-position: 0 0;
+        }
+
+        50% {
+          background-position: 100% 0;
+        }
+      }
+    </style>
   </head>
   <body>
     <div id="header" class="container">
       <header class="header">
-        <h1>NUS</h1>
-        <p class="lead">A modern, minimalist, and lightweight URL shortener using Node.js and Redis.</p>
+        <p class="lead">url.mrskeltal.io: <span class="shadowbox">the <span class="rainbow rainbow_text_animated">cool</span> url shortener</span></p>
       </header><!-- /.header -->
     </div>
 
