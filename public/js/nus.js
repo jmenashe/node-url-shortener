@@ -1,6 +1,7 @@
 (function ($) {
   var _nus = function (data) {
-    this._api_ = '/api/v1/shorten/';
+    this._api_shorten = '/api/v1/shorten/';
+    this._api_random = '/api/v1/random/';
     this._form_ = '#nus';
     this._s_date = '#start_date';
     this._e_date = '#end_date';
@@ -41,7 +42,7 @@
 
   _nus.prototype.request = function (url, s_date, e_date, cNew) {
     var self = this;
-    $.post(self._api_, { long_url: url, start_date: s_date, end_date: e_date, c_new: cNew }, function (data) {
+    $.post(self._api_shorten, { long_url: url, start_date: s_date, end_date: e_date, c_new: cNew }, function (data) {
       if (data.hasOwnProperty('status_code') && data.hasOwnProperty('status_txt')) {
         if (parseInt(data.status_code) == 200) {
 
@@ -56,6 +57,24 @@
       return self.alert(self._errormsg_, true);
     });
   };
+
+  $(function () {
+    var n = new _nus();
+    $('[data-action="random"]').on('click', function() {
+      $.get(n._api_random, function(data, status) {
+        if (data.hasOwnProperty('status_code') && data.hasOwnProperty('status_txt')) {
+          if (parseInt(data.status_code) == 200) {
+            console.log('yay success')
+          } else {
+            n._errormsg_ = data.status_txt;
+          }
+        }
+        return n.alert(n._errormsg_, true);
+      }).error(function () {
+        return n.alert(n._errormsg_, true);
+      });
+    });
+  });
 
   $(function () {
     var n = new _nus();
