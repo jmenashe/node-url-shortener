@@ -9,7 +9,7 @@ module.exports = function (app, nus) {
         if (err) {
           jsonResponse(res, err);
         } else if (reply) {
-          res.redirect(reply.long_url);
+          jsonResponse(res, 200, reply);
         }
       });
     })
