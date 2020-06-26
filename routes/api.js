@@ -3,6 +3,18 @@ module.exports = function (app, nus) {
     , http = require('http')
     , router = require('express').Router();
 
+  router.route('/random')
+    .get(function(req, res) {
+      nus.random(function (err, reply) {
+        if (err) {
+          jsonResponse(res, err);
+        } else if (reply) {
+          res.redirect(reply.long_url);
+        }
+      });
+    })
+  ;
+
   router.route('/shorten')
     .post(function (req, res) {
       nus.shorten(req.body['long_url'], req.body['start_date'], req.body['end_date'], req.body['c_new'], function (err, reply) {
