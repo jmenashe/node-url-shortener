@@ -14,15 +14,15 @@
     var c_new = false;
     this._start_date_ = $(this._s_date).val();
     this._end_date_ = $(this._e_date).val();
-    this._url_ = $(this._link);
-    if (!this.check(this._url_.val())) {
+    this._url_ = $(this._link).val().trim();
+    if (!this.check(this._url_)) {
       return this.alert(this._errormsg_, true);
     }
     if(this._start_date_ !== ''){
        c_new = true;
     }
 
-    this.request(this._url_.val(), this._start_date_, this._end_date_, c_new);
+    this.request(this._url_, this._start_date_, this._end_date_, c_new);
   };
 
   _nus.prototype.check = function (s) {
@@ -46,7 +46,7 @@
       if (data.hasOwnProperty('status_code') && data.hasOwnProperty('status_txt')) {
         if (parseInt(data.status_code) == 200) {
 
-          self._url_.val(data.short_url).select();
+          $(self._link).val(data.short_url).select();
           return self.alert('Copy your shortened url');
         } else {
           self._errormsg_ = data.status_txt;
