@@ -1,0 +1,51 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Server",
+            "type": "node",
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**/*.js",
+                "${env:APPDATA}//npm//node_modules/**/*.js",
+                "${workspaceRoot}/node_modules/**/*.js"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": [ "--harmony" ],
+            "console": "integratedTerminal",
+            "program": "${workspaceFolder}/app.js",
+            "args": [ "--env", "dev" ]
+        },
+        {
+            "name": "Chrome Client",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:3000/",
+            "webRoot": "${workspaceRoot}/public/js"
+        },
+        {
+            "name": "Script Tester",
+            "type": "node",
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**/*.js",
+                "${env:APPDATA}//npm//node_modules/**/*.js",
+                "${workspaceRoot}/node_modules/**/*.js"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": [ "--harmony" ],
+            "console": "integratedTerminal",
+            "program": "${workspaceFolder}/reddit-downloader.js",
+            "args": [ "--env", "dev" ]
+        },
+    ],
+    "compounds": [
+        {
+            "name": "Paired Session",
+            "configurations": ["Debug Server", "Chrome Client"]
+        }
+    ]
+}

@@ -1,29 +1,32 @@
-var request = require('superagent')
-  , mock = require('superagent-mocker')(request)
-  , expect = require('expect.js')
-  , fakeredis;
+import request from 'superagent';
+import mocker from 'superagent-mocker';
+const mock = mocker(request);
+import expect from 'expect.js';
+import fakeredis from 'fakeredis';
+import RedisModel from '../lib/redis-model.js';
+import Nus from '../lib/nus.js';
 
 function addDays(n){
-  var t = new Date();
+  const t = new Date();
   t.setDate(t.getDate() + n);
-  var date = t.getFullYear()+"/"+(((t.getMonth() + 1) < 10 ) ? '0'+(t.getMonth()+1) : (t.getMonth()+1))+"/"+((t.getDate() < 10) ?  '0'+t.getDate() : t.getDate());
+  const date = `${t.getFullYear()}/${((t.getMonth() + 1) < 10 ) ? `0${t.getMonth()+1}` : (t.getMonth()+1)}/${(t.getDate() < 10) ?  `0${t.getDate()}` : t.getDate()}`;
   return date;
 }
 
-describe('Test Node Url Shortener without start_date and end_date - Nus', function () {
-  var nus
-    , long_url
-    , short_url
-    , cNew;
+describe('Test Node Url Shortener without start_date and end_date - Nus', () => {
+  let long_url;
+  let short_url;
+  let cNew;
+  let nus;
+  let fr;
 
-  var dateObject = {};
+  const dateObject = {};
 
-  beforeEach(function() {
-    fakeredis = require('fakeredis').createClient(0, 'localhost', {fast : true});
-    nus = require('../lib/nus')();
-    nus.getModel = function (callback) {
-      var RedisModel = require('../lib/redis-model.js');
-      callback(null, new RedisModel(null, fakeredis));
+  beforeEach(() => {
+    fr = fakeredis.createClient(0, 'localhost', {fast : true});
+    nus = Nus();
+    nus.getModel = callback => {
+      callback(null, new RedisModel(null, fr));
     };
     long_url = 'http://example.com';
     short_url = 'foo';
@@ -32,8 +35,8 @@ describe('Test Node Url Shortener without start_date and end_date - Nus', functi
     cNew = 'false';
   });
 
-  it('should shorten', function (done) {
-    nus.shorten(long_url, dateObject.start_date, dateObject.end_date, cNew,  function (err, reply) {
+  it('should shorten', done => {
+    nus.shorten(long_url, dateObject.start_date, dateObject.end_date, cNew,  (err, reply) => {
       expect(err).to.be(null);
       expect(reply).to.not.be.empty();
       expect(reply).to.only.have.keys('hash', 'long_url');
@@ -43,9 +46,9 @@ describe('Test Node Url Shortener without start_date and end_date - Nus', functi
     });
   });
 
-  it('should expand', function (done) {
-    nus.getModel(function (err, redis) {
-      fakeredis.multi([
+  it('should expand', done => {
+    nus.getModel((err, redis) => {
+      fr.multi([
         ['set', redis.kUrl(long_url), short_url],
         ['hmset', redis.kHash(short_url),
           'url', long_url,
@@ -54,9 +57,9 @@ describe('Test Node Url Shortener without start_date and end_date - Nus', functi
           'end_date', dateObject.end_date,
           'clicks', 1
         ]
-      ]).exec(function (err, replies) {
+      ]).exec((err, replies) => {
 
-        nus.shorten(long_url, dateObject.start_date, dateObject.end_date, cNew, function (err, reply) {
+        nus.shorten(long_url, dateObject.start_date, dateObject.end_date, cNew, (err, reply) => {
           expect(err).to.be(null);
           expect(reply).to.not.be.empty();
           expect(reply).to.only.have.keys('hash', 'long_url');
@@ -73,20 +76,20 @@ describe('Test Node Url Shortener without start_date and end_date - Nus', functi
 
 
 
-describe('Test Node Url Shortener with start_date and end_date - Nus', function () {
-  var nus
-    , long_url
-    , short_url
-    , cNew;
+describe('Test Node Url Shortener with start_date and end_date - Nus', () => {
+  let nus;
+  let long_url;
+  let short_url;
+  let cNew;
+  let fr;
 
-  var dateObject = {};
+  const dateObject = {};
 
-  beforeEach(function() {
-    fakeredis = require('fakeredis').createClient(0, 'localhost', {fast : true});
-    nus = require('../lib/nus')();
-    nus.getModel = function (callback) {
-      var RedisModel = require('../lib/redis-model.js');
-      callback(null, new RedisModel(null, fakeredis));
+  beforeEach(() => {
+    fr = fakeredis.createClient(0, 'localhost', {fast : true});
+    nus = Nus();
+    nus.getModel = callback => {
+      callback(null, new RedisModel(null, fr));
     };
     long_url = 'http://example.com';
     short_url = 'foo';
@@ -95,8 +98,8 @@ describe('Test Node Url Shortener with start_date and end_date - Nus', function 
     cNew = 'true';
   });
 
-  it('should shorten', function (done) {
-    nus.shorten(long_url, dateObject.start_date, dateObject.end_date, cNew,  function (err, reply) {
+  it('should shorten', done => {
+    nus.shorten(long_url, dateObject.start_date, dateObject.end_date, cNew,  (err, reply) => {
       expect(err).to.be(null);
       expect(reply).to.not.be.empty();
       expect(reply).to.only.have.keys('hash', 'long_url');
@@ -106,9 +109,9 @@ describe('Test Node Url Shortener with start_date and end_date - Nus', function 
     });
   });
 
-  it('should expand', function (done) {
-    nus.getModel(function (err, redis) {
-      fakeredis.multi([
+  it('should expand', done => {
+    nus.getModel((err, redis) => {
+      fr.multi([
         ['set', redis.kUrl(long_url), short_url],
         ['hmset', redis.kHash(short_url),
           'url', long_url,
@@ -117,9 +120,9 @@ describe('Test Node Url Shortener with start_date and end_date - Nus', function 
           'end_date', dateObject.end_date,
           'clicks', 1
         ]
-      ]).exec(function (err, replies) {
+      ]).exec((err, replies) => {
 
-        nus.shorten(long_url, dateObject.start_date, dateObject.end_date, cNew, function (err, reply) {
+        nus.shorten(long_url, dateObject.start_date, dateObject.end_date, cNew, (err, reply) => {
           expect(err).to.be(null);
           expect(reply).to.not.be.empty();
           expect(reply).to.only.have.keys('hash', 'long_url');

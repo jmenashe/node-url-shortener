@@ -1,29 +1,30 @@
-var request = require('superagent')
-  , mock = require('superagent-mocker')(request)
-  , expect = require('expect.js')
-  , RedisModel = require('../lib/redis-model.js')
-  , fakeredis;
-
+import request from 'superagent';
+import mocker from 'superagent-mocker';
+const mock = mocker(request);
+import fakeredis from 'fakeredis';
+import expect from 'expect.js';
+import RedisModel from '../lib/redis-model.js';
 
 function addDays(n){
-  var t = new Date();
+  const t = new Date();
   t.setDate(t.getDate() + n);
-  var date = t.getFullYear()+"/"+(((t.getMonth() + 1) < 10 ) ? '0'+(t.getMonth()+1) : (t.getMonth()+1))+"/"+((t.getDate() < 10) ?  '0'+t.getDate() : t.getDate());
+  const date = `${t.getFullYear()}/${((t.getMonth() + 1) < 10 ) ? `0${t.getMonth()+1}` : (t.getMonth()+1)}/${(t.getDate() < 10) ?  `0${t.getDate()}` : t.getDate()}`;
   return date;
 }
 
-describe('Test Node Url Shortener Without Dates - RedisModel', function () {
-  var redis
-    , prefix
-    , long_url
-    , short_url
-    , cNew;
+describe('Test Node Url Shortener Without Dates - RedisModel', () => {
+  let redis;
+  let prefix;
+  let long_url;
+  let short_url;
+  let cNew;
+  let fr;
 
-  var dateObject = {};
+  const dateObject = {};
 
-  beforeEach(function() {
-    fakeredis = require('fakeredis').createClient(0, 'localhost', {fast : true});
-    redis = new RedisModel(null, fakeredis);
+  beforeEach(() => {
+    fr = fakeredis.createClient(0, 'localhost', {fast : true});
+    redis = new RedisModel(null, fr);
     prefix = RedisModel._prefix_;
     long_url = 'http://example.com';
     short_url = 'foo'
@@ -31,36 +32,36 @@ describe('Test Node Url Shortener Without Dates - RedisModel', function () {
     dateObject.end_date = '';
   });
 
-  it('kCounter should return Redis key', function (done) {
-    var data = redis.kCounter();
+  it('kCounter should return Redis key', done => {
+    const data = redis.kCounter();
     expect(data).to.be.a('string');
-    expect(data).to.be(prefix + 'counter');
+    expect(data).to.be(`${prefix}counter`);
     done();
   });
 
-  it('kUrl should return Redis key', function (done) {
-    var data = redis.kUrl(long_url);
+  it('kUrl should return Redis key', done => {
+    const data = redis.kUrl(long_url);
     expect(data).to.be.a('string');
-    expect(data).to.be(prefix + 'url:a9b9f04336ce0181a08e774e01113b31');
+    expect(data).to.be(`${prefix}url:a9b9f04336ce0181a08e774e01113b31`);
     done();
   });
 
-  it('kHash should return Redis key', function (done) {
-    var data = redis.kHash(short_url);
+  it('kHash should return Redis key', done => {
+    const data = redis.kHash(short_url);
     expect(data).to.be.a('string');
-    expect(data).to.be(prefix + 'hash:foo');
+    expect(data).to.be(`${prefix}hash:foo`);
     done();
   });
 
-  it('md5 should return MD5 hash', function (done) {
-    var data = redis.md5(long_url);
+  it('md5 should return MD5 hash', done => {
+    const data = redis.md5(long_url);
     expect(data).to.be.a('string');
     expect(data).to.be('a9b9f04336ce0181a08e774e01113b31');
     done();
   });
 
-  it('uniqId should return unique Redis key', function (done) {
-    redis.uniqId(function(err, hash) {
+  it('uniqId should return unique Redis key', done => {
+    redis.uniqId((err, hash) => {
       expect(err).to.be(null);
       expect(hash).to.be.a('string');
       expect(hash).to.match(/[\w=]+/);
@@ -68,8 +69,8 @@ describe('Test Node Url Shortener Without Dates - RedisModel', function () {
     });
   });
 
-  it('findUrl should return Redis value', function (done) {
-    fakeredis.multi([
+  it('findUrl should return Redis value', done => {
+    fr.multi([
       ['set', redis.kUrl(long_url), short_url],
       ['hmset', redis.kHash(short_url),
         'url', long_url,
@@ -78,9 +79,9 @@ describe('Test Node Url Shortener Without Dates - RedisModel', function () {
         'end_date', dateObject.end_date,
         'clicks', 1
       ]
-    ]).exec(function (err, replies) {
+    ]).exec((err, replies) => {
 
-      redis.findUrl(long_url, function(err, reply) {
+      redis.findUrl(long_url, (err, reply) => {
         expect(err).to.be(null);
         expect(reply).to.be.a('string');
         expect(reply).to.be(short_url);
@@ -90,8 +91,8 @@ describe('Test Node Url Shortener Without Dates - RedisModel', function () {
     });
   });
 
-  it('findHash should return Redis value', function (done) {
-    fakeredis.multi([
+  it('findHash should return Redis value', done => {
+    fr.multi([
       ['set', redis.kUrl(long_url), short_url],
       ['hmset', redis.kHash(short_url),
         'url', long_url,
@@ -100,9 +101,9 @@ describe('Test Node Url Shortener Without Dates - RedisModel', function () {
         'end_date', dateObject.end_date,
         'clicks', 1
       ]
-    ]).exec(function (err, replies) {
+    ]).exec((err, replies) => {
 
-      redis.findHash(short_url, function(err, reply) {
+      redis.findHash(short_url, (err, reply) => {
         expect(err).to.be(null);
         expect(reply).to.not.be.empty();
         expect(reply).to.only.have.keys('clicks', 'hash', 'url', 'start_date', 'end_date');
@@ -114,8 +115,8 @@ describe('Test Node Url Shortener Without Dates - RedisModel', function () {
     });
   });
 
-  it('clickLink should return 2', function (done) {
-    fakeredis.multi([
+  it('clickLink should return 2', done => {
+    fr.multi([
       ['set', redis.kUrl(long_url), short_url],
       ['hmset', redis.kHash(short_url),
         'url', long_url,
@@ -124,9 +125,9 @@ describe('Test Node Url Shortener Without Dates - RedisModel', function () {
         'end_date', dateObject.end_date,
         'clicks', 1
       ]
-    ]).exec(function (err, replies) {
+    ]).exec((err, replies) => {
 
-      redis.clickLink(short_url, function(err, reply) {
+      redis.clickLink(short_url, (err, reply) => {
         expect(err).to.be(null);
         expect(reply).to.be(2)
         done();
@@ -135,8 +136,8 @@ describe('Test Node Url Shortener Without Dates - RedisModel', function () {
     });
   });
 
-  it('set should return Redis value', function (done) {
-    redis.set(long_url, dateObject, cNew, function(err, reply) {
+  it('set should return Redis value', done => {
+    redis.set(long_url, dateObject, cNew, (err, reply) => {
       expect(err).to.be(null);
       expect(reply).to.not.be.empty();
       expect(reply).to.only.have.keys('hash', 'long_url');
@@ -146,8 +147,8 @@ describe('Test Node Url Shortener Without Dates - RedisModel', function () {
     });
   });
 
-  it('get should return Redis value', function (done) {
-    fakeredis.multi([
+  it('get should return Redis value', done => {
+    fr.multi([
       ['set', redis.kUrl(long_url), short_url],
       ['hmset', redis.kHash(short_url),
         'url', long_url,
@@ -156,9 +157,9 @@ describe('Test Node Url Shortener Without Dates - RedisModel', function () {
         'end_date', dateObject.end_date,
         'clicks', 1
       ]
-    ]).exec(function (err, replies) {
+    ]).exec((err, replies) => {
 
-      redis.get(short_url, function(err, reply) {
+      redis.get(short_url, (err, reply) => {
         expect(err).to.be(null);
         expect(reply).to.not.be.empty();
         expect(reply).to.only.have.keys('hash', 'long_url', 'clicks', 'start_date', 'end_date');
@@ -172,18 +173,19 @@ describe('Test Node Url Shortener Without Dates - RedisModel', function () {
 });
 
 
-describe('Test Node Url Shortener With Dates - RedisModel', function () {
-  var redis
-    , prefix
-    , long_url
-    , short_url
-    , cNew;
+describe('Test Node Url Shortener With Dates - RedisModel', () => {
+  let redis;
+  let prefix;
+  let long_url;
+  let short_url;
+  let cNew;
+  let fr;
 
-  var dateObject = {};
+  const dateObject = {};
 
-  beforeEach(function() {
-    fakeredis = require('fakeredis').createClient(0, 'localhost', {fast : true});
-    redis = new RedisModel(null, fakeredis);
+  beforeEach(() => {
+    fr = fakeredis.createClient(0, 'localhost', {fast : true});
+    redis = new RedisModel(null, fr);
     prefix = RedisModel._prefix_;
     long_url = 'http://example.com';
     short_url = 'foo'
@@ -191,36 +193,36 @@ describe('Test Node Url Shortener With Dates - RedisModel', function () {
     dateObject.end_date = addDays(2);
   });
 
-  it('kCounter should return Redis key', function (done) {
-    var data = redis.kCounter();
+  it('kCounter should return Redis key', done => {
+    const data = redis.kCounter();
     expect(data).to.be.a('string');
-    expect(data).to.be(prefix + 'counter');
+    expect(data).to.be(`${prefix}counter`);
     done();
   });
 
-  it('kUrl should return Redis key', function (done) {
-    var data = redis.kUrl(long_url);
+  it('kUrl should return Redis key', done => {
+    const data = redis.kUrl(long_url);
     expect(data).to.be.a('string');
-    expect(data).to.be(prefix + 'url:a9b9f04336ce0181a08e774e01113b31');
+    expect(data).to.be(`${prefix}url:a9b9f04336ce0181a08e774e01113b31`);
     done();
   });
 
-  it('kHash should return Redis key', function (done) {
-    var data = redis.kHash(short_url);
+  it('kHash should return Redis key', done => {
+    const data = redis.kHash(short_url);
     expect(data).to.be.a('string');
-    expect(data).to.be(prefix + 'hash:foo');
+    expect(data).to.be(`${prefix}hash:foo`);
     done();
   });
 
-  it('md5 should return MD5 hash', function (done) {
-    var data = redis.md5(long_url);
+  it('md5 should return MD5 hash', done => {
+    const data = redis.md5(long_url);
     expect(data).to.be.a('string');
     expect(data).to.be('a9b9f04336ce0181a08e774e01113b31');
     done();
   });
 
-  it('uniqId should return unique Redis key', function (done) {
-    redis.uniqId(function(err, hash) {
+  it('uniqId should return unique Redis key', done => {
+    redis.uniqId((err, hash) => {
       expect(err).to.be(null);
       expect(hash).to.be.a('string');
       expect(hash).to.match(/[\w=]+/);
@@ -228,8 +230,8 @@ describe('Test Node Url Shortener With Dates - RedisModel', function () {
     });
   });
 
-  it('findUrl should return Redis value', function (done) {
-    fakeredis.multi([
+  it('findUrl should return Redis value', done => {
+    fr.multi([
       ['set', redis.kUrl(long_url), short_url],
       ['hmset', redis.kHash(short_url),
         'url', long_url,
@@ -238,9 +240,9 @@ describe('Test Node Url Shortener With Dates - RedisModel', function () {
         'end_date', dateObject.end_date,
         'clicks', 1
       ]
-    ]).exec(function (err, replies) {
+    ]).exec((err, replies) => {
 
-      redis.findUrl(long_url, function(err, reply) {
+      redis.findUrl(long_url, (err, reply) => {
         expect(err).to.be(null);
         expect(reply).to.be.a('string');
         expect(reply).to.be(short_url);
@@ -250,8 +252,8 @@ describe('Test Node Url Shortener With Dates - RedisModel', function () {
     });
   });
 
-  it('findHash should return Redis value', function (done) {
-    fakeredis.multi([
+  it('findHash should return Redis value', done => {
+    fr.multi([
       ['set', redis.kUrl(long_url), short_url],
       ['hmset', redis.kHash(short_url),
         'url', long_url,
@@ -260,9 +262,9 @@ describe('Test Node Url Shortener With Dates - RedisModel', function () {
         'end_date', dateObject.end_date,
         'clicks', 1
       ]
-    ]).exec(function (err, replies) {
+    ]).exec((err, replies) => {
 
-      redis.findHash(short_url, function(err, reply) {
+      redis.findHash(short_url, (err, reply) => {
         expect(err).to.be(null);
         expect(reply).to.not.be.empty();
         expect(reply).to.only.have.keys('clicks', 'hash', 'url', 'start_date', 'end_date');
@@ -274,8 +276,8 @@ describe('Test Node Url Shortener With Dates - RedisModel', function () {
     });
   });
 
-  it('clickLink should return 2', function (done) {
-    fakeredis.multi([
+  it('clickLink should return 2', done => {
+    fr.multi([
       ['set', redis.kUrl(long_url), short_url],
       ['hmset', redis.kHash(short_url),
         'url', long_url,
@@ -284,9 +286,9 @@ describe('Test Node Url Shortener With Dates - RedisModel', function () {
         'end_date', dateObject.end_date,
         'clicks', 1
       ]
-    ]).exec(function (err, replies) {
+    ]).exec((err, replies) => {
 
-      redis.clickLink(short_url, function(err, reply) {
+      redis.clickLink(short_url, (err, reply) => {
         expect(err).to.be(null);
         expect(reply).to.be(2)
         done();
@@ -295,8 +297,8 @@ describe('Test Node Url Shortener With Dates - RedisModel', function () {
     });
   });
 
-  it('set should return Redis value', function (done) {
-    redis.set(long_url, dateObject, cNew, function(err, reply) {
+  it('set should return Redis value', done => {
+    redis.set(long_url, dateObject, cNew, (err, reply) => {
       expect(err).to.be(null);
       expect(reply).to.not.be.empty();
       expect(reply).to.only.have.keys('hash', 'long_url');
@@ -306,8 +308,8 @@ describe('Test Node Url Shortener With Dates - RedisModel', function () {
     });
   });
 
-  it('get should return Redis value', function (done) {
-    fakeredis.multi([
+  it('get should return Redis value', done => {
+    fr.multi([
       ['set', redis.kUrl(long_url), short_url],
       ['hmset', redis.kHash(short_url),
         'url', long_url,
@@ -316,9 +318,9 @@ describe('Test Node Url Shortener With Dates - RedisModel', function () {
         'end_date', dateObject.end_date,
         'clicks', 1
       ]
-    ]).exec(function (err, replies) {
+    ]).exec((err, replies) => {
 
-      redis.get(short_url, function(err, reply) {
+      redis.get(short_url, (err, reply) => {
         expect(err).to.be(null);
         expect(reply).to.not.be.empty();
         expect(reply).to.only.have.keys('hash', 'long_url', 'clicks', 'start_date', 'end_date');

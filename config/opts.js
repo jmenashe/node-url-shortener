@@ -1,4 +1,5 @@
-module.exports = require('yargs')
+import yargs from 'yargs';
+yargs
   .usage('Usage: $0 [options]')
   .alias('u', 'url')
   .describe('u', 'Application URL')
@@ -17,3 +18,5 @@ module.exports = require('yargs')
   .help('h')
   .alias('h', 'help')
   .argv;
+
+export default yargs;

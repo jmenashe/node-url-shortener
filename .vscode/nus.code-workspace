@@ -1,0 +1,43 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		}
+	],
+	"settings": {
+		"git.defaultCloneDirectory": "${env:code}",
+		"shellLauncher.shells.windows": [
+			{
+				"shell": "C:\\Program Files\\nodejs\\node.exe",
+				"label": "Node",
+				"launchName": "node"
+			},
+			{
+				"shell": "C:\\Windows\\System32\\cmd.exe",
+				"label": "cmd",
+				"launchName": "Win Cmd"
+			},
+			{
+				"shell": "C:\\Program Files\\Git\\bin\\bash.exe",
+				"label": "Git Bash"
+			}
+		],
+		"terminals.terminals": [
+			"${env:ProgramW6432}\\PowerShell\\7\\pwsh.exe",
+			"${env:ProgramW6432}\\nodejs\\node.exe"
+		],
+		"debug.javascript.onlyAutoAttachExplicit": false,
+		"search.exclude": {
+			".vs/**/*": true,
+			".vscode/**/*": true,
+			"**/public/js/**/*": true,
+			"**/public/styles/**/*": true,
+			"package-lock.json": true
+		},
+		"explorer.confirmDragAndDrop": false,
+		"terminal.integrated.env.windows": {},
+		"eslint.alwaysShowStatus": true,
+		"eslint.format.enable": true,
+		"eslint.lintTask.enable": true
+	}
+}

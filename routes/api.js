@@ -1,11 +1,13 @@
-module.exports = function (app, nus) {
-  var opts = app.get('opts')
-    , http = require('http')
-    , router = require('express').Router();
+import http from 'http';
+import express from 'express';
+
+export default (app, nus) => {
+  const opts = app.get('opts');
+  const router = express.Router();
 
   router.route('/random')
-    .get(function(req, res) {
-      nus.random(function (err, reply) {
+    .get((req, res) => {
+      nus.random((err, reply) => {
         if (err) {
           jsonResponse(res, err);
         } else if (reply) {
@@ -16,12 +18,12 @@ module.exports = function (app, nus) {
   ;
 
   router.route('/shorten')
-    .post(function (req, res) {
-      nus.shorten(req.body['long_url'], req.body['start_date'], req.body['end_date'], req.body['c_new'], function (err, reply) {
+    .post(({body}, res) => {
+      nus.shorten(body['long_url'], body['start_date'], body['end_date'], body['c_new'], (err, reply) => {
         if (err) {
           jsonResponse(res, err);
         } else if (reply) {
-          reply.short_url = opts.url.replace(/\/$/, '') + '/' + reply.hash;
+          reply.short_url = `${opts.url.replace(/\/$/, '')}/${reply.hash}`;
           jsonResponse(res, 200, reply);
         } else {
           jsonResponse(res, 500);
@@ -30,8 +32,8 @@ module.exports = function (app, nus) {
     });
 
   router.route('/expand')
-    .post(function (req, res) {
-      nus.expand(req.body['short_url'], function (err, reply) {
+    .post(({body}, res) => {
+      nus.expand(body['short_url'], (err, reply) => {
         if (err) {
           jsonResponse(res, err);
         } else if (reply) {
@@ -43,8 +45,8 @@ module.exports = function (app, nus) {
     });
 
   router.route('/expand/:short_url')
-    .get(function (req, res) {
-      nus.expand(req.params.short_url, function (err, reply) {
+    .get(({params}, res) => {
+      nus.expand(params.short_url, (err, reply) => {
         if (err) {
           jsonResponse(res, err);
         } else if (reply) {
@@ -64,8 +66,7 @@ module.exports = function (app, nus) {
       });
     });
 
-  function jsonResponse (res, code, data) {
-    data = data || {};
+  function jsonResponse(res, code, data = {}) {
     data.status_code = (http.STATUS_CODES[code]) ? code : 503,
     data.status_txt = http.STATUS_CODES[code] || http.STATUS_CODES[503]
 

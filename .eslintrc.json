@@ -1,0 +1,38 @@
+{
+    "env": {
+        "browser": true,
+        "es2020": true,
+        "node": true
+    },
+    "globals": {
+        "paper": true
+    },
+    "extends": "eslint:recommended",
+    "parserOptions": {
+        "ecmaVersion": 2020,
+        "sourceType": "module"
+    },
+    "rules": {
+        "no-unused-vars": [
+          "warn", {
+            "args": "after-used"
+          }
+        ],
+        "wrap-iife": [
+          "error",
+          "inside"
+        ],
+        "indent": "off",
+        "no-with": "error",
+        "no-implicit-coercion": "off",
+        "quotes": [
+          "error",
+          "single"
+        ],
+        "linebreak-style": "off",
+        "semi": [
+          "error",
+          "always"
+        ]
+      }
+}

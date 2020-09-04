@@ -1,0 +1,10 @@
+.vs
+.vscode
+build
+config
+design
+node_modules
+public
+routes
+views
+./*.js
